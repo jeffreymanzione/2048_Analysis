@@ -1,14 +1,14 @@
 package game;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.IntStream;
 
-import player.LookAheadMergesPlayer2048;
-import player.LookAheadScorePlayer2048;
-import player.Player2048;
+import player.*;
 
 public class Game2048 {
 
@@ -35,7 +35,7 @@ public class Game2048 {
 		return copyBoard(this.board);
 	}
 
-	private static int[][] copyBoard(int[][] board) {
+	public static int[][] copyBoard(int[][] board) {
 		int[][] boardCopy = new int[4][4];
 		for (int i = 0; i < board.length; i++) {
 			for (int j = 0; j < board[i].length; j++) {
@@ -76,6 +76,8 @@ public class Game2048 {
 		int score = 0;
 		int numMerges = 0;
 
+		int maxBlock = 1;
+
 		board = copyBoard(board);
 
 		int start;
@@ -101,9 +103,8 @@ public class Game2048 {
 			boolean combined = false;
 			for (int i = start; i != end; i += (end > start ? 1 : -1)) {
 
-				int x = vert ? j : i, y = vert ? i : j, xn = (vert ? j : i
-						+ (back ? 1 : -1)), yn = (vert ? i + (back ? 1 : -1)
-						: j);
+				int x = vert ? j : i, y = vert ? i : j, xn = (vert ? j : i + (back ? 1 : -1)), yn = (vert ? i
+						+ (back ? 1 : -1) : j);
 
 				// System.out.println(x + "," + y + " " + xn + "," + yn);
 
@@ -113,8 +114,8 @@ public class Game2048 {
 				boolean found = false;
 
 				int k, posk = pos;
-				for (k = i + (back ? 1 : -1); (end > start ? k <= end
-						: k >= end) && posk == 0; k += (end > start ? 1 : -1)) {
+				for (k = i + (back ? 1 : -1); (end > start ? k <= end : k >= end) && posk == 0; k += (end > start ? 1
+						: -1)) {
 					int xk = vert ? j : k, yk = vert ? k : j;
 					posk = board[xk][yk];
 
@@ -136,7 +137,11 @@ public class Game2048 {
 
 				if (pos != 0 && pos == neb && !combined) {
 					board[x][y]++;
-					score += Math.pow(2, board[x][y]);
+					int block = (int) Math.pow(2, board[x][y]);
+					if (block > maxBlock) {
+						maxBlock = block;
+					}
+					score += block;
 					board[xn][yn] = 0;
 					numMerges++;
 					combined = true;
@@ -149,7 +154,7 @@ public class Game2048 {
 		}
 
 		if (moved) {
-			return new Move(board, score, numMerges, dir);
+			return new Move(board, score, numMerges, dir, maxBlock);
 		} else {
 			return null;
 		}
@@ -221,6 +226,7 @@ public class Game2048 {
 		return score;
 	}
 
+	@Override
 	public String toString() {
 		String result = "";
 
@@ -236,26 +242,39 @@ public class Game2048 {
 		return result;
 	}
 
-	public static void main(String[] args) throws FileNotFoundException {
-
-		// System.out.println(g);
-
-		try (PrintWriter out = new PrintWriter("out.csv")) {
-
-			for (int i = 0; i < 1000; i++) {
-				Player2048 p1 = new LookAheadScorePlayer2048(3);
-				p1.play(new Game2048());
-
-				Player2048 p2 = new LookAheadMergesPlayer2048(3);
-				p2.play(new Game2048());
-
-				out.println(p1.getScore() + "," + p2.getScore());
+	public int getMaxBlock() {
+		int maxBlock = 1;
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 4; j++) {
+				if (board[i][j] > maxBlock) {
+					maxBlock = board[i][j];
+				}
 			}
 		}
+		return maxBlock;
+	}
 
-		// Player2048 p = new HumanPlayer2048();
-		// p.play(new Game2048());
-		// System.out.println(p.getScore());
+	public static void main(String[] args) {
+
+		// try (PrintWriter out = new PrintWriter(new File("out.csv"))) {
+		IntStream.range(0, 10_000).forEach(i -> {
+			Player2048 player = new LookAheadScorePlayer2048(3);
+			player.play(new Game2048());
+			// out.println(player.getScore() + "," + player.getMaxBlock());
+				System.out.println(player.getScore() + "," + player.getMaxBlock());
+			});
+		// } catch (FileNotFoundException e) {
+		// e.printStackTrace();
+		// }
+
+		// GameThreadPool pool = new GameThreadPool(() -> new
+		// RandomLookAheadScorePlayer2048(3), Runtime.getRuntime()
+		// .availableProcessors(), 11);
+		// Game2048 game = pool.get();
+		// System.out.println("Largest block: " + (int) Math.pow(2,
+		// game.getMaxBlock()) + "\nScore: " + game.getScore()
+		// + "\nTries: " + pool.getTries() + "\nTime: " + ((double)
+		// pool.getTime()) / 1000 + "s");
 
 	}
 }

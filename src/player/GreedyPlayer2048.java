@@ -7,6 +7,7 @@ import game.Move;
 
 public class GreedyPlayer2048 extends Player2048 {
 
+	@Override
 	protected int choose(List<Move> moves) {
 		
 		List<Integer> list = new ArrayList<Integer>();

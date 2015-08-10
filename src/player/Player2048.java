@@ -22,4 +22,9 @@ public abstract class Player2048 {
 	public int getScore() {
 		return game.getScore();
 	}
+
+	public int getMaxBlock() {
+		return game.getMaxBlock();
+	}
+
 }

@@ -8,6 +8,7 @@ import java.util.Scanner;
 public class HumanPlayer2048 extends Player2048 {
 	Scanner scan = new Scanner(System.in);
 
+	@Override
 	protected int choose(List<Move> moves) {
 		System.out.println(game);
 		moves.forEach(k -> { System.out.print(getLetter(k.dir) + " "); } );

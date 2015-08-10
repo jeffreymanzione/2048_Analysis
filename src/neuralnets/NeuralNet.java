@@ -60,6 +60,7 @@ public class NeuralNet {
 
 	}
 
+	@Override
 	public String toString() {
 		String result = "";
 		result += "Input bits: " + inputBits;
@@ -98,7 +99,7 @@ public class NeuralNet {
 				start = starts[level - 1];
 				for (int i = start, storage_i = 0; i < starts[level]; i++, storage_i++) {
 					for (int j = starts[level], storage_j = 0; j < starts[level + 1]; j++, storage_j++) {
-						nextStorage[storage_j] += (double) (storage[storage_i] * weights[i][j]);
+						nextStorage[storage_j] += storage[storage_i] * weights[i][j];
 					}
 				}
 
@@ -153,7 +154,7 @@ public class NeuralNet {
 
 				for (int j = starts[level - 1], storage_j = 0; j < starts[level]; j++, storage_j++) {
 					//System.out.println(storage[storage_i] + " " + weights[j][i]);
-					weights[j][i] += (double) (ETA * (storage[storage_i] - weights[j][i]));
+					weights[j][i] += ETA * (storage[storage_i] - weights[j][i]);
 					nextStorage[storage_j] = storage[storage_i] - weights[j][i];
 				}
 			}

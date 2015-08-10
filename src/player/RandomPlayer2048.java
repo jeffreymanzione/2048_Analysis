@@ -6,6 +6,7 @@ import java.util.List;
 
 public class RandomPlayer2048 extends Player2048 {
 	
+	@Override
 	protected int choose(List<Move> moves) {
 		
 		int dir;
